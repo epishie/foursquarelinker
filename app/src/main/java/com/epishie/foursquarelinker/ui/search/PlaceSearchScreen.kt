@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
+import com.epishie.foursquarelinker.domain.place.AutoCompleteAddress
 import com.epishie.foursquarelinker.domain.place.Place
 import kotlinx.coroutines.flow.Flow
 
@@ -42,6 +42,7 @@ fun PlaceSearchScreen() {
     val viewModel = viewModel<PlaceSearchViewModel>()
     val keyword by viewModel.keyword.collectAsStateWithLifecycle()
     val address by viewModel.address.collectAsStateWithLifecycle()
+    val autoCompleteAddresses by viewModel.autoCompleteAddresses.collectAsStateWithLifecycle()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
     PlaceSearchScreen(
@@ -49,6 +50,8 @@ fun PlaceSearchScreen() {
         onKeywordChange = viewModel::updateKeyword,
         address = address,
         onAddressChange = viewModel::updateAddress,
+        autoCompleteAddresses = autoCompleteAddresses,
+        onAddressSelect = viewModel::selectAddress,
         onLocationRequest = viewModel::requestCurrentLocation,
         searchResults = searchResults,
         onSearch = viewModel::search
@@ -62,6 +65,8 @@ private fun PlaceSearchScreen(
     onKeywordChange: (String) -> Unit,
     address: Address,
     onAddressChange: (String) -> Unit,
+    autoCompleteAddresses: List<AutoCompleteAddress>,
+    onAddressSelect: (AutoCompleteAddress) -> Unit,
     onLocationRequest: () -> Unit,
     onSearch: () -> Unit,
     searchResults: Flow<PagingData<Place>>?,
@@ -94,6 +99,8 @@ private fun PlaceSearchScreen(
                 onKeywordChange = onKeywordChange,
                 address = address,
                 onAddressChange = onAddressChange,
+                autoCompleteAddresses = autoCompleteAddresses,
+                onAddressSelect = onAddressSelect,
                 onCurrentLocationRequest = {
                     if (isLocationPermissionGranted) {
                         onLocationRequest()
@@ -119,13 +126,14 @@ private fun PlaceSearchScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchBar(
     keyword: String,
     onKeywordChange: (String) -> Unit,
     address: Address,
     onAddressChange: (String) -> Unit,
+    autoCompleteAddresses: List<AutoCompleteAddress>,
+    onAddressSelect: (AutoCompleteAddress) -> Unit,
     onCurrentLocationRequest: () -> Unit,
     onSearch: () -> Unit,
 ) {
@@ -146,13 +154,15 @@ private fun SearchBar(
         AddressTextField(
             address = address,
             onAddressChange = onAddressChange,
+            autoCompleteAddresses = autoCompleteAddresses,
+            onAddressSelect = onAddressSelect,
             onCurrentLocationRequest = onCurrentLocationRequest,
             modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = onSearch,
             modifier = Modifier.align(Alignment.End),
-            enabled = (keyword.isNotEmpty() && address is Address.CurrentLocation)
+            enabled = (keyword.isNotEmpty() && (address is Address.CurrentLocation || address is Address.AutoCompleted))
         ) {
             Text(text = "Search")
         }

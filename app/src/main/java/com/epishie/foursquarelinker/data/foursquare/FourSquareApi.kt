@@ -18,11 +18,17 @@ interface FourSquareApi {
     suspend fun searchPlace(
         @Query("query") query: String,
         @Query("ll") latLng: String,
-        @Query("limit") limit: Int
+        @Query("limit") limit: Int,
     ): Response<FoursquareSearchPlaceResponse>
 
     @GET
     suspend fun searchPlaceNext(@Url url: String): Response<FoursquareSearchPlaceResponse>
+
+    @GET("autocomplete")
+    suspend fun autoComplete(
+        @Query("query") query: String,
+        @Query("types") types: String,
+    ): FoursquareAutoCompleteResponse
 
     companion object {
         const val LINK_REGEX = "<(.*)>; *rel=\"(.*)\""

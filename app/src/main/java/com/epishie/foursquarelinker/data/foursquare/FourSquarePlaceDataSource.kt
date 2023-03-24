@@ -1,6 +1,7 @@
 package com.epishie.foursquarelinker.data.foursquare
 
 import android.location.Location
+import com.epishie.foursquarelinker.domain.place.AutoCompleteAddress
 import com.epishie.foursquarelinker.domain.place.Place
 import com.epishie.foursquarelinker.domain.place.PlaceDataSource
 import com.epishie.foursquarelinker.domain.place.PlaceDataSource.SearchResponse
@@ -29,6 +30,11 @@ class FourSquarePlaceDataSource @Inject constructor(
         return response.toSearchResponse() ?: throw IOException("Error: ${response.errorMessage()}")
     }
 
+    override suspend fun autoCompleteAddress(query: String): List<AutoCompleteAddress> {
+        val response = foursquareApi.autoComplete(query, "address")
+        return response.results.map { result -> result.toAutoCompleteAddress() }
+    }
+
     private fun Response<FoursquareSearchPlaceResponse>.toSearchResponse() =
         body()?.let { searchPlaceResponse ->
             SearchResponse(
@@ -45,6 +51,11 @@ class FourSquarePlaceDataSource @Inject constructor(
         id = fsqId,
         name = name,
         address = location.address
+    )
+
+    private fun FoursquareAutoCompleteResponse.Result.toAutoCompleteAddress() = AutoCompleteAddress(
+        id = address.id,
+        text = text.primary
     )
 
     private fun <T> Response<T>.errorMessage(): String =

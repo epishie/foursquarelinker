@@ -1,5 +1,12 @@
 package com.epishie.foursquarelinker.ui.search
 
+import android.graphics.Rect
+import android.view.View
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -15,14 +22,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.epishie.foursquarelinker.R
+import com.epishie.foursquarelinker.domain.place.AutoCompleteAddress
+import kotlin.math.max
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressTextField(
     address: Address,
     onAddressChange: (String) -> Unit,
+    autoCompleteAddresses: List<AutoCompleteAddress>,
+    onAddressSelect: (AutoCompleteAddress) -> Unit,
     onCurrentLocationRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -35,6 +53,7 @@ fun AddressTextField(
                 } else {
                     "Current Location"
                 }
+                is Address.AutoCompleted -> address.value.text
                 is Address.Editing -> address.value
             }
         }
@@ -49,12 +68,25 @@ fun AddressTextField(
             }
     }
 
+    val view = LocalView.current
+    var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val density = LocalDensity.current
+    var textFieldHeight by remember { mutableStateOf(0.dp) }
+    var menuHeight by remember { mutableStateOf(0) }
     TextField(
         value = addressValue,
         onValueChange = onAddressChange,
-        modifier = modifier.onFocusChanged { focusState ->
-            isAddressFocused = focusState.isFocused
-        },
+        modifier = modifier
+            .onFocusChanged { focusState ->
+                isAddressFocused = focusState.isFocused
+            }
+            .onGloballyPositioned {
+                textFieldHeight = with(density) { it.size.height.toDp() }
+                coordinates = it
+                updateMenuHeight(view, coordinates) { height ->
+                    menuHeight = height
+                }
+            },
         label = { Text(text = "Address") },
         readOnly = address is Address.CurrentLocation && !isAddressFocused,
         trailingIcon = {
@@ -69,4 +101,38 @@ fun AddressTextField(
             }
         }
     )
+    var expanded by remember(autoCompleteAddresses) { mutableStateOf(autoCompleteAddresses.isNotEmpty()) }
+    DropdownMenu(
+        expanded = expanded && isAddressFocused,
+        onDismissRequest = { expanded = false },
+        modifier = modifier
+            .heightIn(max = with(density) { menuHeight.toDp() }),
+    ) {
+        autoCompleteAddresses.forEach { autoCompleteAddress ->
+            DropdownMenuItem(
+                text = { Text(text = autoCompleteAddress.text) },
+                onClick = {
+                    expanded = false
+                    onAddressSelect(autoCompleteAddress)
+                },
+                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+            )
+        }
+    }
+}
+
+private fun updateMenuHeight(
+    view: View,
+    coordinates: LayoutCoordinates?,
+    onUpdateMenuHeight: (Int) -> Unit,
+) {
+    coordinates ?: return
+    val visibleWindowBounds = Rect().let {
+        view.getWindowVisibleDisplayFrame(it)
+        it
+    }
+    val heightAbove = coordinates.boundsInWindow().top - visibleWindowBounds.top
+    val heightBelow =
+        visibleWindowBounds.bottom - visibleWindowBounds.top - coordinates.boundsInWindow().bottom
+    onUpdateMenuHeight(max(heightAbove, heightBelow).toInt())
 }

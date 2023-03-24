@@ -23,6 +23,8 @@ class PlaceRepository @Inject constructor(
         }
     }
 
+    suspend fun autoCompleteAddress(query: String) = placeDataSource.autoCompleteAddress(query)
+
     private class PlacePagingSource(
         private val loadPage: suspend (LoadPageType) -> PlaceDataSource.SearchResponse,
     ) : PagingSource<String, Place>() {
