@@ -1,6 +1,5 @@
 package com.epishie.foursquarelinker.ui.search
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +19,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import com.epishie.foursquarelinker.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressTextField(
     address: Address,
@@ -55,9 +53,10 @@ fun AddressTextField(
         value = addressValue,
         onValueChange = onAddressChange,
         modifier = modifier.onFocusChanged { focusState ->
-                isAddressFocused = focusState.isFocused
-            },
+            isAddressFocused = focusState.isFocused
+        },
         label = { Text(text = "Address") },
+        readOnly = address is Address.CurrentLocation && !isAddressFocused,
         trailingIcon = {
             IconButton(
                 onClick = { onCurrentLocationRequest() }
