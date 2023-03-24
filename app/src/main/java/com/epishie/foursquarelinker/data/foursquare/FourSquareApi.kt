@@ -10,6 +10,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Query
+import retrofit2.http.Url
 import javax.inject.Inject
 
 interface FourSquareApi {
@@ -21,7 +22,7 @@ interface FourSquareApi {
     ): Response<FoursquareSearchPlaceResponse>
 
     @GET
-    suspend fun searchPlaceNext(url: String): Response<FoursquareSearchPlaceResponse>
+    suspend fun searchPlaceNext(@Url url: String): Response<FoursquareSearchPlaceResponse>
 
     companion object {
         const val LINK_REGEX = "<(.*)>; *rel=\"(.*)\""

@@ -13,6 +13,14 @@ data class FoursquareSearchPlaceResponse(
         @SerialName("fsq_id")
         val fsqId: String,
         @SerialName("name")
-        val name: String
+        val name: String,
+        @SerialName("location")
+        val location: Location
+    )
+
+    @Serializable
+    data class Location(
+        @SerialName("address")
+        val address: String
     )
 }

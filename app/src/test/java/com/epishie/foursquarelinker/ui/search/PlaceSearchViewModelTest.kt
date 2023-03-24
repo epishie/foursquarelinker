@@ -2,6 +2,7 @@ package com.epishie.foursquarelinker.ui.search
 
 import android.location.Location
 import com.epishie.foursquarelinker.domain.location.LocationRepository
+import com.epishie.foursquarelinker.domain.place.PlaceRepository
 import com.epishie.foursquarelinker.ui.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -25,11 +26,14 @@ class PlaceSearchViewModelTest {
     @MockK
     private lateinit var locationRepository: LocationRepository
 
+    @MockK
+    private lateinit var placeRepository: PlaceRepository
+
     private lateinit var viewModel: PlaceSearchViewModel
 
     @Before
     fun setUp() {
-        viewModel = PlaceSearchViewModel(locationRepository)
+        viewModel = PlaceSearchViewModel(locationRepository, placeRepository)
     }
 
     @Test

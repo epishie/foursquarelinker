@@ -47,7 +47,8 @@ class FourSquarePlaceDataSourceTest {
                 results = listOf(
                     FoursquareSearchPlaceResponse.Result(
                         fsqId = "fsq_id_1",
-                        name = "Place 1"
+                        name = "Place 1",
+                        location = FoursquareSearchPlaceResponse.Location("Address 1")
                     )
                 )
             ),
@@ -70,7 +71,7 @@ class FourSquarePlaceDataSourceTest {
         // Then
         assertThat(searchResponse).isEqualTo(
             SearchResponse(
-                places = listOf(Place(id = "fsq_id_1", "Place 1")),
+                places = listOf(Place(id = "fsq_id_1", "Place 1", "Address 1")),
                 next = "https://api.foursquare.com/v3/places/search/next/2"
             )
         )
@@ -112,7 +113,8 @@ class FourSquarePlaceDataSourceTest {
                 results = listOf(
                     FoursquareSearchPlaceResponse.Result(
                         fsqId = "fsq_id_1",
-                        name = "Place 1"
+                        name = "Place 1",
+                        location = FoursquareSearchPlaceResponse.Location("Address 1")
                     )
                 )
             )
@@ -126,7 +128,7 @@ class FourSquarePlaceDataSourceTest {
         // Then
         assertThat(searchResponse).isEqualTo(
             SearchResponse(
-                places = listOf(Place(id = "fsq_id_1", "Place 1")),
+                places = listOf(Place(id = "fsq_id_1", "Place 1", "Address 1")),
                 next = null
             )
         )

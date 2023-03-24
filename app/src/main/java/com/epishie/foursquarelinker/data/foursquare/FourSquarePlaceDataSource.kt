@@ -26,7 +26,7 @@ class FourSquarePlaceDataSource @Inject constructor(
 
     override suspend fun searchNext(next: String): SearchResponse {
         val response = foursquareApi.searchPlaceNext(next)
-        return response.toSearchResponse() ?: throw java.io.IOException("Error: ${response.errorMessage()}")
+        return response.toSearchResponse() ?: throw IOException("Error: ${response.errorMessage()}")
     }
 
     private fun Response<FoursquareSearchPlaceResponse>.toSearchResponse() =
@@ -43,7 +43,8 @@ class FourSquarePlaceDataSource @Inject constructor(
 
     private fun FoursquareSearchPlaceResponse.Result.toPlace() = Place(
         id = fsqId,
-        name = name
+        name = name,
+        address = location.address
     )
 
     private fun <T> Response<T>.errorMessage(): String =

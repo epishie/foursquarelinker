@@ -41,7 +41,7 @@ class PlaceRepositoryTest {
         coEvery {
             dataSource.search(keyword = "test_keyword", location = location, count = 10)
         } returns PlaceDataSource.SearchResponse(
-            places = listOf(Place("id1", "Venue 1")),
+            places = listOf(Place("id1", "Venue 1", "Address 1")),
             next = "https://example.com/search/next/2"
         )
 
@@ -53,7 +53,7 @@ class PlaceRepositoryTest {
         assertThat(page)
             .isEqualTo(
                 PagingSource.LoadResult.Page(
-                    data = listOf(Place("id1", "Venue 1")),
+                    data = listOf(Place("id1", "Venue 1", "Address 1")),
                     prevKey = null,
                     nextKey = "https://example.com/search/next/2"
                 )
@@ -85,7 +85,7 @@ class PlaceRepositoryTest {
         coEvery {
             dataSource.searchNext(next = "https://example.com/search/next/2")
         } returns PlaceDataSource.SearchResponse(
-            places = listOf(Place("id1", "Venue 1")),
+            places = listOf(Place("id1", "Venue 1", "Address 1")),
             next = "https://example.com/search/next/3"
         )
 
@@ -103,7 +103,7 @@ class PlaceRepositoryTest {
         assertThat(page)
             .isEqualTo(
                 PagingSource.LoadResult.Page(
-                    data = listOf(Place("id1", "Venue 1")),
+                    data = listOf(Place("id1", "Venue 1", "Address 1")),
                     prevKey = null,
                     nextKey = "https://example.com/search/next/3"
                 )
