@@ -1,6 +1,7 @@
 package com.epishie.foursquarelinker.data.foursquare
 
 import com.epishie.foursquarelinker.BuildConfig
+import com.epishie.foursquarelinker.domain.place.AddressDetails
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -9,6 +10,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 import javax.inject.Inject
@@ -19,6 +21,7 @@ interface FourSquareApi {
         @Query("query") query: String,
         @Query("ll") latLng: String,
         @Query("limit") limit: Int,
+        @Query("sort") sort: String
     ): Response<FoursquareSearchPlaceResponse>
 
     @GET
@@ -29,6 +32,9 @@ interface FourSquareApi {
         @Query("query") query: String,
         @Query("types") types: String,
     ): FoursquareAutoCompleteResponse
+
+    @GET("address/{id}")
+    suspend fun getAddressDetails(@Path("id") id: String): AddressDetails
 
     companion object {
         const val LINK_REGEX = "<(.*)>; *rel=\"(.*)\""

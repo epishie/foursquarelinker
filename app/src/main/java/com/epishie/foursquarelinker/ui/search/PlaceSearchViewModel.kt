@@ -67,13 +67,24 @@ class PlaceSearchViewModel @Inject constructor(
     }
 
     fun search() {
-        searchResults.value = Pager(config = PagingConfig(initialLoadSize = 10, pageSize = 10)) {
-            placeRepository.searchPlace(
-                keyword.value,
-                (address.value as Address.CurrentLocation).value
-            )
+        searchResults.value = when (val address = address.value) {
+            is Address.Editing -> null
+            is Address.CurrentLocation -> Pager(config = PagingConfig(initialLoadSize = 10, pageSize = 10)) {
+                placeRepository.searchPlace(
+                    keyword.value,
+                    address.value
+                )
+            }
+                .flow
+                .cachedIn(viewModelScope)
+            is Address.AutoCompleted -> Pager(config = PagingConfig(initialLoadSize = 10, pageSize = 10)) {
+                placeRepository.searchPlace(
+                    keyword.value,
+                    address.value.id
+                )
+            }
+                .flow
+                .cachedIn(viewModelScope)
         }
-            .flow
-            .cachedIn(viewModelScope)
     }
 }

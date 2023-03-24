@@ -20,7 +20,19 @@ class FourSquarePlaceDataSource @Inject constructor(
         val response = foursquareApi.searchPlace(
             query = keyword,
             latLng = "${location.latitude.toFloat()},${location.longitude.toFloat()}",
-            limit = count
+            limit = count,
+            sort = "distance"
+        )
+        return response.toSearchResponse() ?: throw IOException("Error: ${response.errorMessage()}")
+    }
+
+    override suspend fun search(keyword: String, addressId: String, count: Int): SearchResponse {
+        val geocode = foursquareApi.getAddressDetails(addressId).geocodes.main
+        val response = foursquareApi.searchPlace(
+            query = keyword,
+            latLng = "${geocode.latitude.toFloat()},${geocode.longitude.toFloat()}",
+            limit = count,
+            sort = "distance"
         )
         return response.toSearchResponse() ?: throw IOException("Error: ${response.errorMessage()}")
     }
@@ -55,7 +67,8 @@ class FourSquarePlaceDataSource @Inject constructor(
 
     private fun FoursquareAutoCompleteResponse.Result.toAutoCompleteAddress() = AutoCompleteAddress(
         id = address.id,
-        text = text.primary
+        text1 = text.primary,
+        text2 = text.secondary
     )
 
     private fun <T> Response<T>.errorMessage(): String =

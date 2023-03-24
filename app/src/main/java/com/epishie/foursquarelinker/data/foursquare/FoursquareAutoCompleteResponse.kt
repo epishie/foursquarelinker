@@ -19,7 +19,9 @@ data class FoursquareAutoCompleteResponse(
     @Serializable
     data class Text(
         @SerialName("primary")
-        val primary: String
+        val primary: String,
+        @SerialName("secondary")
+        val secondary: String
     )
 
     @Serializable

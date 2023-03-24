@@ -23,6 +23,19 @@ class PlaceRepository @Inject constructor(
         }
     }
 
+    fun searchPlace(keyword: String, addressId: String): PagingSource<String, Place> {
+        return PlacePagingSource { loadPageType ->
+            when (loadPageType) {
+                is LoadPageType.Initial -> placeDataSource.search(
+                    keyword,
+                    addressId,
+                    loadPageType.size
+                )
+                is LoadPageType.Next -> placeDataSource.searchNext(loadPageType.key)
+            }
+        }
+    }
+
     suspend fun autoCompleteAddress(query: String) = placeDataSource.autoCompleteAddress(query)
 
     private class PlacePagingSource(

@@ -2,6 +2,7 @@ package com.epishie.foursquarelinker.ui.search
 
 import android.graphics.Rect
 import android.view.View
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -53,7 +54,7 @@ fun AddressTextField(
                 } else {
                     "Current Location"
                 }
-                is Address.AutoCompleted -> address.value.text
+                is Address.AutoCompleted -> address.value.text1
                 is Address.Editing -> address.value
             }
         }
@@ -110,7 +111,12 @@ fun AddressTextField(
     ) {
         autoCompleteAddresses.forEach { autoCompleteAddress ->
             DropdownMenuItem(
-                text = { Text(text = autoCompleteAddress.text) },
+                text = {
+                    Column {
+                        Text(text = autoCompleteAddress.text1, style = MaterialTheme.typography.bodyMedium)
+                        Text(text = autoCompleteAddress.text2, style = MaterialTheme.typography.bodySmall)
+                    }
+                },
                 onClick = {
                     expanded = false
                     onAddressSelect(autoCompleteAddress)
