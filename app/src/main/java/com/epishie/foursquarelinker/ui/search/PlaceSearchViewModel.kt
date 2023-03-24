@@ -62,7 +62,9 @@ class PlaceSearchViewModel @Inject constructor(
 
     fun requestCurrentLocation() {
         viewModelScope.launch {
-            address.value = Address.CurrentLocation(locationRepository.getCurrentLocation())
+            locationRepository.getCurrentLocation()?.let {
+                address.value = Address.CurrentLocation(it)
+            }
         }
     }
 

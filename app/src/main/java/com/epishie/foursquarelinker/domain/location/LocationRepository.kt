@@ -12,5 +12,5 @@ class LocationRepository @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient
 ) {
     @SuppressLint("MissingPermission")
-    suspend fun getCurrentLocation(): Location = fusedLocationClient.lastLocation.await()
+    suspend fun getCurrentLocation(): Location? = fusedLocationClient.lastLocation.await()
 }
