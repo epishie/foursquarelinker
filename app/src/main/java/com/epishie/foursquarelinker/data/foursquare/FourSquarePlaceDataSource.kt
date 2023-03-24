@@ -6,8 +6,11 @@ import com.epishie.foursquarelinker.domain.place.PlaceDataSource
 import com.epishie.foursquarelinker.domain.place.PlaceDataSource.SearchResponse
 import retrofit2.Response
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class FourSquarePlaceDataSource(
+@Singleton
+class FourSquarePlaceDataSource @Inject constructor(
     private val foursquareApi: FourSquareApi,
 ) : PlaceDataSource {
     private val linkRegex = FourSquareApi.LINK_REGEX.toRegex()

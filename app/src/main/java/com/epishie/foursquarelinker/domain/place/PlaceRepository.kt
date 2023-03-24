@@ -3,8 +3,11 @@ package com.epishie.foursquarelinker.domain.place
 import android.location.Location
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class PlaceRepository(
+@Singleton
+class PlaceRepository @Inject constructor(
     private val placeDataSource: PlaceDataSource,
 ) {
     fun searchPlace(keyword: String, location: Location): PagingSource<String, Place> {
