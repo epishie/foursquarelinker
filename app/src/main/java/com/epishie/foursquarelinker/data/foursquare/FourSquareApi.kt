@@ -21,7 +21,7 @@ interface FourSquareApi {
         @Query("query") query: String,
         @Query("ll") latLng: String,
         @Query("limit") limit: Int,
-        @Query("sort") sort: String
+        @Query("sort") sort: String = "distance"
     ): Response<FoursquareSearchPlaceResponse>
 
     @GET

@@ -1,5 +1,6 @@
 package com.epishie.foursquarelinker.data.foursquare
 
+import com.epishie.foursquarelinker.domain.place.AddressDetails
 import com.epishie.foursquarelinker.domain.place.Place
 import com.epishie.foursquarelinker.domain.place.PlaceDataSource.SearchResponse
 import io.mockk.coEvery
@@ -78,6 +79,54 @@ class FourSquarePlaceDataSourceTest {
     }
 
     @Test
+    fun searchWithAddressReturnsResponseOnSuccess() = runTest {
+        // Given
+        coEvery {
+            fourSquareApi.getAddressDetails("address_1")
+        } returns AddressDetails(
+            geocodes = AddressDetails.Geocodes(
+                main = AddressDetails.Geocode(1.0, 1.0)
+            )
+        )
+        coEvery {
+            fourSquareApi.searchPlace(
+                query = "test_query",
+                latLng = "1.0,1.0",
+                limit = 10
+            )
+        } returns Response.success(
+            FoursquareSearchPlaceResponse(
+                results = listOf(
+                    FoursquareSearchPlaceResponse.Result(
+                        fsqId = "fsq_id_1",
+                        name = "Place 1",
+                        location = FoursquareSearchPlaceResponse.Location("Address 1")
+                    )
+                )
+            ),
+            Headers.headersOf(
+                "link",
+                "<https://api.foursquare.com/v3/places/search/next/2>; rel=\"next\""
+            )
+        )
+
+        // When
+        val searchResponse = dataSource.search(
+            keyword = "test_query",
+            addressId = "address_1",
+            count = 10
+        )
+
+        // Then
+        assertThat(searchResponse).isEqualTo(
+            SearchResponse(
+                places = listOf(Place(id = "fsq_id_1", "Place 1", "Address 1")),
+                next = "https://api.foursquare.com/v3/places/search/next/2"
+            )
+        )
+    }
+
+    @Test
     fun searchThrowsErrorOnHttpError() = runTest {
         // Given
         coEvery {
@@ -96,6 +145,76 @@ class FourSquarePlaceDataSourceTest {
                     every { latitude } returns 1.0
                     every { longitude } returns 1.0
                 },
+                count = 10
+            )
+        }.exceptionOrNull()
+
+        assertThat(exception).isInstanceOf(IOException::class.java)
+    }
+
+    @Test
+    fun searchWithAddressThrowsErrorOnAddressHttpError() = runTest {
+        // Given
+        coEvery {
+            fourSquareApi.getAddressDetails("address_1")
+        } throws IOException()
+        coEvery {
+            fourSquareApi.searchPlace(
+                query = "test_query",
+                latLng = "1.0,1.0",
+                limit = 10
+            )
+        } returns Response.success(
+            FoursquareSearchPlaceResponse(
+                results = listOf(
+                    FoursquareSearchPlaceResponse.Result(
+                        fsqId = "fsq_id_1",
+                        name = "Place 1",
+                        location = FoursquareSearchPlaceResponse.Location("Address 1")
+                    )
+                )
+            ),
+            Headers.headersOf(
+                "link",
+                "<https://api.foursquare.com/v3/places/search/next/2>; rel=\"next\""
+            )
+        )
+
+        // When
+        val exception = kotlin.runCatching {
+            dataSource.search(
+                keyword = "test_query",
+                addressId = "address_1",
+                count = 10
+            )
+        }.exceptionOrNull()
+
+        assertThat(exception).isInstanceOf(IOException::class.java)
+    }
+
+    @Test
+    fun searchWithAddressThrowsErrorOnSearchHttpError() = runTest {
+        // Given
+        coEvery {
+            fourSquareApi.getAddressDetails("address_1")
+        } returns AddressDetails(
+            geocodes = AddressDetails.Geocodes(
+                main = AddressDetails.Geocode(1.0, 1.0)
+            )
+        )
+        coEvery {
+            fourSquareApi.searchPlace(
+                query = "test_query",
+                latLng = "1.0,1.0",
+                limit = 10
+            )
+        } returns Response.error(401, "".toResponseBody())
+
+        // When
+        val exception = kotlin.runCatching {
+            dataSource.search(
+                keyword = "test_query",
+                addressId = "address_1",
                 count = 10
             )
         }.exceptionOrNull()
