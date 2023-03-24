@@ -7,6 +7,7 @@ import com.epishie.foursquarelinker.domain.place.PlaceDataSource
 import com.google.android.gms.location.LocationServices
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -21,6 +22,8 @@ interface DataModule {
     fun bindPlaceDataSource(dataSource: FourSquarePlaceDataSource): PlaceDataSource
 
     companion object {
+
+        @Provides
         fun provideLocationClient(@ApplicationContext context: Context) =
             LocationServices.getFusedLocationProviderClient(context)
     }
